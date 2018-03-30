@@ -8,9 +8,11 @@
 #include "config.h"
 #include "item_updater.hpp"
 #include "xyz/openbmc_project/Software/Version/server.hpp"
+#include "xyz/openbmc_project/Software/PnorInfo/server.hpp"
 #include <experimental/filesystem>
 #include "version.hpp"
 #include "serialize.hpp"
+#include <iostream>
 
 namespace phosphor
 {
@@ -282,6 +284,57 @@ void ItemUpdater::processBMCImage()
         {
             log<level::ERR>(e.what());
         }
+    }
+    return;
+}
+
+void ItemUpdater::processPnorInfoVersion()
+{
+    auto pnor_info_cmd = PNOR_INFO_COMMAND  PNOR_INFO_TEMP_FILE;
+
+    std::system(pnor_info_cmd); //execute command to create pnor version temp file
+                                //for accessing pnor version
+    if (fs::exists(PNOR_INFO_TEMP_FILE))
+    {
+        auto buildversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_BUILD_PREFIX);
+        auto buildrootversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_BUILDROOT_PREFIX);
+        auto skibootversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_SKI_PREFIX);
+        auto hostbootversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_HOST_PREFIX);
+        auto linuxversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_LINUX_PREFIX);
+        auto pertitbootversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_PETIT_PREFIX);
+        auto machineversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_MACHINE_PREFIX);
+        auto occversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_OCC_PREFIX);
+        auto hostbootbinversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_HOSTBIN_PREFIX);
+        auto cappversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_CAPP_PREFIX);
+        auto sbeversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_SBE_PREFIX);
+
+        auto pnor_object_path = fs::path(SOFTWARE_OBJPATH) / PNOR_INFO_SENSOR_NAME;
+        auto versionPtr_pnor = std::make_unique<PnorInfoVersionClass>(
+                        bus,
+                        pnor_object_path.c_str(),
+                        buildversionString,
+                        buildrootversionString,
+                        skibootversionString,
+                        hostbootversionString,
+                        linuxversionString,
+                        pertitbootversionString,
+                        machineversionString,
+                        occversionString,
+                        hostbootbinversionString,
+                        cappversionString,
+                        sbeversionString,
+                        server::PnorInfo::PnorVersionPurpose::BIOS);
+
+        auto it = pnor_versions.find(PNOR_INFO_SENSOR_NAME);
+        if (it == pnor_versions.end()) {
+            pnor_versions.insert(std::make_pair(
+                                    PNOR_INFO_SENSOR_NAME,
+                                    std::move(versionPtr_pnor)));
+        }
+    }
+    else
+    {
+        std::cout << "processPnorInfoVersion: pnor version command fail, not find version temp file" << std::endl;
     }
     return;
 }

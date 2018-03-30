@@ -2,6 +2,7 @@
 
 #include <sdbusplus/bus.hpp>
 #include "xyz/openbmc_project/Software/Version/server.hpp"
+#include "xyz/openbmc_project/Software/PnorInfo/server.hpp"
 #include "xyz/openbmc_project/Common/FilePath/server.hpp"
 #include <functional>
 
@@ -18,11 +19,53 @@ using VersionInherit = sdbusplus::server::object::object<
         sdbusplus::xyz::openbmc_project::Software::server::Version,
         sdbusplus::xyz::openbmc_project::Common::server::FilePath>;
 
+using PnorVersionInherit = sdbusplus::server::object::object<
+        sdbusplus::xyz::openbmc_project::Software::server::PnorInfo>;
+
+
 /** @class Version
  *  @brief OpenBMC version software management implementation.
  *  @details A concrete implementation for xyz.openbmc_project.Software.Version
  *  D-Bus API.
  */
+
+class PnorInforVersion : public PnorVersionInherit
+{
+    public:
+        PnorInforVersion(sdbusplus::bus::bus& bus,
+                const std::string& objPath,
+                const std::string& buildversionString,
+                const std::string& buildrootversionString,
+                const std::string& skibootversionString,
+                const std::string& hostbootversionString,
+                const std::string& linuxversionString,
+                const std::string& pertitbootversionString,
+                const std::string& machineversionString,
+                const std::string& occversionString,
+                const std::string& hostbootbinversionString,
+                const std::string& cappversionString,
+                const std::string& sbeversionString,
+                PnorVersionPurpose versionPurpose) : PnorVersionInherit(
+                        bus, (objPath).c_str(), true)
+        {
+            // Set properties.
+            buildVersion(buildversionString);
+            buildRootVersion(buildrootversionString);
+            skiBootVersion(skibootversionString);
+            hostBootVersion(hostbootversionString);
+            linuxVersion(linuxversionString);
+            petitBootVersion(pertitbootversionString);
+            machineVersion(machineversionString);
+            occVersion(occversionString);
+            hostBootBinVersion(hostbootbinversionString);
+            cappVersion(cappversionString);
+            sbeVersion(sbeversionString);
+            pnorPurpose(versionPurpose);
+            // Emit deferred signal.
+            emit_object_added();
+        }
+};
+
 class Version : public VersionInherit
 {
     public:
@@ -86,6 +129,17 @@ class Version : public VersionInherit
          *           version.
          */
         bool isFunctional();
+
+        /**
+         * @brief Get the active Pnor version string.
+         *
+         * @param[in] releaseFilePath - The path to the file which contains
+         *                              the release version string.
+         *            pnor_info_prefix - The prefix to parse pnor info
+         *
+         * @return The version string (e.g. v1.99.10-19).
+         */
+        static std::string getPnorInfoVersion(const std::string& releaseFilePath, const std::string& pnor_info_prefix);
 
     private:
         /** @brief This Version's version string */

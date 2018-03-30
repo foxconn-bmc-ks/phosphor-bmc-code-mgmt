@@ -119,6 +119,27 @@ std::string Version::getBMCVersion(const std::string& releaseFilePath)
     return version;
 }
 
+std::string Version::getPnorInfoVersion(const std::string& releaseFilePath, const std::string& pnor_info_prefix)
+{
+    std::string version{};
+    std::ifstream efile;
+    std::string line;
+    efile.open(releaseFilePath);
+
+    while (getline(efile, line))
+    {
+        std::size_t pos = line.find(pnor_info_prefix);
+        if (pos !=
+            std::string::npos)
+        {
+            version = line.substr(pos, line.size() - pos);
+            break;
+        }
+    }
+    efile.close();
+    return version;
+}
+
 bool Version::isFunctional()
 {
     return versionStr == getBMCVersion(OS_RELEASE_FILE);

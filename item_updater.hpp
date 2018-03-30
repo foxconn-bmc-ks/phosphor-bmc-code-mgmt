@@ -23,6 +23,7 @@ using ItemUpdaterInherit = sdbusplus::server::object::object<
 
 namespace MatchRules = sdbusplus::bus::match::rules;
 using VersionClass = phosphor::software::manager::Version;
+using PnorInfoVersionClass = phosphor::software::manager::PnorInforVersion;
 using AssociationList =
         std::vector<std::tuple<std::string, std::string, std::string>>;
 
@@ -60,6 +61,7 @@ class ItemUpdater : public ItemUpdaterInherit
         {
             setBMCInventoryPath();
             processBMCImage();
+            processPnorInfoVersion();
             restoreFieldModeStatus();
             emit_object_added();
         };
@@ -78,6 +80,11 @@ class ItemUpdater : public ItemUpdaterInherit
          * @brief Create and populate the active BMC Version.
          */
         void processBMCImage();
+
+         /**
+         * @brief Create Pnor Version.
+         */
+        void processPnorInfoVersion();
 
         /**
          * @brief Erase specified entry D-Bus object
@@ -190,6 +197,7 @@ class ItemUpdater : public ItemUpdaterInherit
         /** @brief Persistent map of Version D-Bus objects and their
           * version id */
         std::map<std::string, std::unique_ptr<VersionClass>> versions;
+        std::map<std::string, std::unique_ptr<PnorInfoVersionClass>> pnor_versions;
 
         /** @brief sdbusplus signal match for Software.Version */
         sdbusplus::bus::match_t versionMatch;
