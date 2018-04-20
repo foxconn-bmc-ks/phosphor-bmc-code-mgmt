@@ -22,8 +22,7 @@ using namespace sdbusplus::xyz::openbmc_project::Common::Error;
 using namespace phosphor::logging;
 namespace fs = std::experimental::filesystem;
 
-void Download::downloadViaTFTP(std::string fileName,
-                               std::string serverAddress)
+void Download::downloadViaTFTP(std::string fileName, std::string serverAddress)
 {
     using Argument = xyz::openbmc_project::Common::InvalidArgument;
 
@@ -52,14 +51,16 @@ void Download::downloadViaTFTP(std::string fileName,
     }
 
     log<level::INFO>("Downloading via TFTP",
-                     entry("FILENAME=%s", fileName),
-                     entry("SERVERADDRESS=%s", serverAddress));
+                     entry("FILENAME=%s", fileName.c_str()),
+                     entry("SERVERADDRESS=%s", serverAddress.c_str()));
 
-    // Check if IMAGE DIR exists and create if necessary.
+    // Check if IMAGE DIR exists
     fs::path imgDirPath(IMG_UPLOAD_DIR);
     if (!fs::is_directory(imgDirPath))
     {
-        fs::create_directory(imgDirPath);
+        log<level::ERR>("Error Image Dir does not exist");
+        elog<InternalFailure>();
+        return;
     }
 
     pid_t pid = fork();
@@ -67,10 +68,9 @@ void Download::downloadViaTFTP(std::string fileName,
     if (pid == 0)
     {
         // child process
-        execl("/usr/bin/tftp", "tftp", "-g", "-r",  fileName.c_str(),
+        execl("/usr/bin/tftp", "tftp", "-g", "-r", fileName.c_str(),
               serverAddress.c_str(), "-l",
-              (std::string{IMG_UPLOAD_DIR} + '/' + fileName).c_str(),
-              (char*)0);
+              (std::string{IMG_UPLOAD_DIR} + '/' + fileName).c_str(), (char*)0);
         // execl only returns on fail
         log<level::ERR>("Error occurred during the TFTP call");
         elog<InternalFailure>();
@@ -87,4 +87,3 @@ void Download::downloadViaTFTP(std::string fileName,
 } // namespace manager
 } // namespace software
 } // namespace phosphor
-

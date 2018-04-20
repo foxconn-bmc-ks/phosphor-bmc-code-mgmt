@@ -29,12 +29,9 @@ void storeToFile(std::string versionId, uint8_t priority)
     oarchive(cereal::make_nvp("priority", priority));
 
     std::string serviceFile = "obmc-flash-bmc-setenv@" + versionId + "\\x3d" +
-            std::to_string(priority) + ".service";
-    auto method = bus.new_method_call(
-            SYSTEMD_BUSNAME,
-            SYSTEMD_PATH,
-            SYSTEMD_INTERFACE,
-            "StartUnit");
+                              std::to_string(priority) + ".service";
+    auto method = bus.new_method_call(SYSTEMD_BUSNAME, SYSTEMD_PATH,
+                                      SYSTEMD_INTERFACE, "StartUnit");
     method.append(serviceFile, "replace");
     bus.call_noreply(method);
 }
@@ -78,17 +75,22 @@ bool restoreFromFile(std::string versionId, uint8_t& priority)
             std::string envVars;
             std::getline(input, envVars);
 
-            if (envVars.find(versionId) != std::string::npos)
+            std::string versionVar = versionId + "=";
+            auto varPosition = envVars.find(versionVar);
+
+            if (varPosition != std::string::npos)
             {
                 // Grab the environment variable for this versionId. These
                 // variables follow the format "versionId=priority\0"
-                auto var = envVars.substr(envVars.find(versionId));
-                priority = std::stoi(var.substr(var.find('=') + 1));
+                auto var = envVars.substr(varPosition);
+                priority = std::stoi(var.substr(versionVar.length()));
                 return true;
             }
         }
     }
-    catch (const std::exception& e){}
+    catch (const std::exception& e)
+    {
+    }
 
     return false;
 }

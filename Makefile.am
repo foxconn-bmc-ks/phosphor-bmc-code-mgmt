@@ -39,6 +39,11 @@ phosphor_image_updater_SOURCES = \
 	item_updater.cpp \
 	item_updater_main.cpp
 
+if WANT_SIGNATURE_VERIFY_BUILD
+noinst_HEADERS += image_verify.hpp
+phosphor_image_updater_SOURCES += image_verify.cpp
+endif
+
 nodist_phosphor_image_updater_SOURCES = \
 	org/openbmc/Associations/server.cpp
 

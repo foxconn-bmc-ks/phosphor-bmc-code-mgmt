@@ -53,13 +53,16 @@ AX_APPEND_COMPILE_FLAGS([-Wall -Werror], [CXXFLAGS])
 
 AC_DEFINE(ACTIVATION_FWD_ASSOCIATION, "inventory", [The name of the activation's forward association.])
 AC_DEFINE(ACTIVATION_REV_ASSOCIATION, "activation", [The name of the activation's reverse association.])
-AC_DEFINE(CHASSIS_INVENTORY_PATH, "/xyz/openbmc_project/inventory/system/chassis/", [The chassis inventory path root.])
+AC_DEFINE(INVENTORY_PATH, "/xyz/openbmc_project/inventory/",
+    [The inventory path root.])
+AC_DEFINE(BMC_INVENTORY_INTERFACE, "xyz.openbmc_project.Inventory.Item.Bmc",
+    [The BMC inventory interface])
 
 AC_DEFINE(ACTIVE_FWD_ASSOCIATION, "active", [The name of the active's forward association.])
 AC_DEFINE(ACTIVE_REV_ASSOCIATION, "software_version", [The name of the active's reverse association.])
 
 AC_DEFINE(FUNCTIONAL_FWD_ASSOCIATION, "functional", [The name of the functional forward association.])
-AC_DEFINE(FUNCTIONAL_REV_ASSOCIATION, "software_version", [The functional reverse association.])
+AC_DEFINE(FUNCTIONAL_REV_ASSOCIATION, "functional", [The name of the functional reverse association.])
 
 AC_ARG_VAR(VERSION_BUSNAME, [The Dbus busname to own])
 AS_IF([test "x$VERSION_BUSNAME" == "x"], [VERSION_BUSNAME="xyz.openbmc_project.Software.Version"])
@@ -104,6 +107,34 @@ AC_DEFINE_UNQUOTED([IMG_UPLOAD_DIR], ["$IMG_UPLOAD_DIR"], [Directory where downl
 AC_ARG_VAR(MANIFEST_FILE_NAME, [The name of the MANIFEST file])
 AS_IF([test "x$MANIFEST_FILE_NAME" == "x"], [MANIFEST_FILE_NAME="MANIFEST"])
 AC_DEFINE_UNQUOTED([MANIFEST_FILE_NAME], ["$MANIFEST_FILE_NAME"], [The name of the MANIFEST file])
+
+AC_ARG_VAR(PUBLICKEY_FILE_NAME, [The name of the public key file])
+AS_IF([test "x$PUBLICKEY_FILE_NAME" == "x"], [PUBLICKEY_FILE_NAME="publickey"])
+AC_DEFINE_UNQUOTED([PUBLICKEY_FILE_NAME], ["$PUBLICKEY_FILE_NAME"], [The name of the public key file])
+
+AC_ARG_VAR(HASH_FILE_NAME, [Hash file name])
+AS_IF([test "x$HASH_FILE_NAME" == "x"], [HASH_FILE_NAME="hashfunc"])
+AC_DEFINE_UNQUOTED([HASH_FILE_NAME], ["$HASH_FILE_NAME"], [The name of the hash file])
+
+AC_ARG_VAR(SIGNED_IMAGE_CONF_PATH, [Path of public key and hash function files])
+AS_IF([test "x$SIGNED_IMAGE_CONF_PATH" == "x"], [SIGNED_IMAGE_CONF_PATH="/etc/activationdata/"])
+AC_DEFINE_UNQUOTED([SIGNED_IMAGE_CONF_PATH], ["$SIGNED_IMAGE_CONF_PATH"], [Path of public key and hash function files])
+
+AC_ARG_VAR(SIGNATURE_FILE_EXT, [The extension of the Signature file])
+AS_IF([test "x$SIGNATURE_FILE_EXT" == "x"], [SIGNATURE_FILE_EXT=".sig"])
+AC_DEFINE_UNQUOTED([SIGNATURE_FILE_EXT], ["$SIGNATURE_FILE_EXT"], [The extension of the Signature file])
+
+AC_ARG_VAR(ACTIVE_BMC_MAX_ALLOWED, [The maximum allowed active BMC versions])
+AS_IF([test "x$ACTIVE_BMC_MAX_ALLOWED" == "x"], [ACTIVE_BMC_MAX_ALLOWED=2])
+AC_DEFINE_UNQUOTED([ACTIVE_BMC_MAX_ALLOWED], [$ACTIVE_BMC_MAX_ALLOWED],
+    [The maximum allowed active BMC versions])
+
+# setup signature verification
+AC_ARG_ENABLE([verify_signature],
+    AS_HELP_STRING([--enable-verify_signature], [Enable image signature validation.]))
+AS_IF([test "x$enable_verify_signature" == "xyes"], \
+    [AC_DEFINE([WANT_SIGNATURE_VERIFY],[],[Enable image signature validation.])])
+AM_CONDITIONAL([WANT_SIGNATURE_VERIFY_BUILD], [test "x$enable_verify_signature" == "xyes"])
 
 AC_DEFINE(BUSNAME_UPDATER, "xyz.openbmc_project.Software.BMC.Updater",
     [The item updater DBus busname to own.])
