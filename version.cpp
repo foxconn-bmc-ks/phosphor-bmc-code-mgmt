@@ -127,6 +127,13 @@ std::string Version::getPnorInfoVersion(const std::string& releaseFilePath, cons
 
     while (getline(efile, line))
     {
+        //First line must be BIOS version
+        if (pnor_info_prefix.compare(PNOR_INFO_BIOS_PREFIX) == 0)
+        {
+            version.assign(line);
+            break;
+        }
+
         std::size_t pos = line.find(pnor_info_prefix);
         if (pos !=
             std::string::npos)

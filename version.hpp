@@ -81,6 +81,7 @@ class PnorInforVersion : public PnorVersionInherit
     public:
         PnorInforVersion(sdbusplus::bus::bus& bus,
                 const std::string& objPath,
+                const std::string& biosversionString,
                 const std::string& buildversionString,
                 const std::string& buildrootversionString,
                 const std::string& skibootversionString,
@@ -96,6 +97,7 @@ class PnorInforVersion : public PnorVersionInherit
                         bus, (objPath).c_str(), true)
         {
             // Set properties.
+            bIOSVersion(biosversionString);
             buildVersion(buildversionString);
             buildRootVersion(buildrootversionString);
             skiBootVersion(skibootversionString);
