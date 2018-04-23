@@ -111,6 +111,7 @@ AC_DEFINE(BUSNAME_UPDATER, "xyz.openbmc_project.Software.BMC.Updater",
 AC_DEFINE([PNOR_INFO_COMMAND], ["pflash -P VERSION -r  "], [pnor version command])
 AC_DEFINE([PNOR_INFO_TEMP_FILE], ["/tmp/PnorInfo.txt"], [pnor info version temp file])
 AC_DEFINE([PNOR_INFO_SENSOR_NAME], ["Pnor_Info"], [pnor info version temp file])
+AC_DEFINE([PNOR_INFO_BIOS_PREFIX], ["OpenBmc"], [pnor info bios prefix to find pnor version position])
 AC_DEFINE([PNOR_INFO_BUILD_PREFIX], ["op-build-"], [pnor info build prefix to find pnor version position])
 AC_DEFINE([PNOR_INFO_BUILDROOT_PREFIX], ["buildroot-"], [pnor info build root prefix to find pnor version position])
 AC_DEFINE([PNOR_INFO_SKI_PREFIX], ["skiboot-"], [pnor info skiroot prefix to find pnor version position])

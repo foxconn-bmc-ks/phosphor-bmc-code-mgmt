@@ -296,6 +296,7 @@ void ItemUpdater::processPnorInfoVersion()
                                 //for accessing pnor version
     if (fs::exists(PNOR_INFO_TEMP_FILE))
     {
+        auto biosversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_BIOS_PREFIX);
         auto buildversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_BUILD_PREFIX);
         auto buildrootversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_BUILDROOT_PREFIX);
         auto skibootversionString = VersionClass::getPnorInfoVersion(PNOR_INFO_TEMP_FILE, PNOR_INFO_SKI_PREFIX);
@@ -312,6 +313,7 @@ void ItemUpdater::processPnorInfoVersion()
         auto versionPtr_pnor = std::make_unique<PnorInfoVersionClass>(
                         bus,
                         pnor_object_path.c_str(),
+                        biosversionString,
                         buildversionString,
                         buildrootversionString,
                         skibootversionString,
